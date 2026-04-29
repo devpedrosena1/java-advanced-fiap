@@ -1,0 +1,256 @@
+{
+  "title": "Observability Demo - Spring Boot",
+  "uid": "observability-demo",
+  "version": 1,
+  "schemaVersion": 38,
+  "refresh": "10s",
+  "time": { "from": "now-15m", "to": "now" },
+  "tags": ["spring-boot", "prometheus"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Pedidos Criados (total)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "orders_created_total{application=\"observability-demo\"}",
+          "legendFormat": "Total"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 200 }
+            ]
+          }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Pedidos Cancelados (total)",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "orders_cancelled_total{application=\"observability-demo\"}",
+          "legendFormat": "Cancelados"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 10 },
+              { "color": "red", "value": 50 }
+            ]
+          }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Pedidos Pendentes (agora)",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "orders_pending_current{application=\"observability-demo\"}",
+          "legendFormat": "Pendentes"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Receita Total (R$)",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "orders_revenue_total{application=\"observability-demo\"}",
+          "legendFormat": "Receita"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyBRL",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Taxa de Criação de Pedidos (req/s)",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(orders_created_total{application=\"observability-demo\"}[1m])",
+          "legendFormat": "Pedidos/s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Latência de Processamento de Pedidos",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(orders_processing_duration_seconds_bucket{application=\"observability-demo\"}[1m]))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(orders_processing_duration_seconds_bucket{application=\"observability-demo\"}[1m]))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(orders_processing_duration_seconds_bucket{application=\"observability-demo\"}[1m]))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 7,
+      "type": "piechart",
+      "title": "Pedidos por Status",
+      "gridPos": { "x": 0, "y": 12, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "expr": "orders_by_status{application=\"observability-demo\"}",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "options": {
+        "pieType": "donut",
+        "displayLabels": ["name", "value"]
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Latência HTTP - Endpoint /api/orders (p95)",
+      "gridPos": { "x": 8, "y": 12, "w": 16, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"observability-demo\"}[1m])) by (le, uri))",
+          "legendFormat": "{{uri}} - p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "JVM - Uso de Memória Heap",
+      "gridPos": { "x": 0, "y": 20, "w": 12, "h": 7 },
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{application=\"observability-demo\", area=\"heap\"}",
+          "legendFormat": "Heap usada - {{id}}"
+        },
+        {
+          "expr": "jvm_memory_max_bytes{application=\"observability-demo\", area=\"heap\"}",
+          "legendFormat": "Heap máx - {{id}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "JVM - Threads Ativas",
+      "gridPos": { "x": 12, "y": 20, "w": 12, "h": 7 },
+      "targets": [
+        {
+          "expr": "jvm_threads_live_threads{application=\"observability-demo\"}",
+          "legendFormat": "Threads ativas"
+        },
+        {
+          "expr": "jvm_threads_daemon_threads{application=\"observability-demo\"}",
+          "legendFormat": "Threads daemon"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "datasource": "Prometheus"
+    }
+  ]
+}
