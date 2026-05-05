@@ -1,6 +1,5 @@
 package br.com.fiap.javaadv.observability.actuator;
 
-
 import br.com.fiap.javaadv.observability.service.OrderService;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
